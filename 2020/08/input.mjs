@@ -1,14 +1,4 @@
-const testInput = `nop +0
-acc +1
-jmp +4
-acc +3
-jmp -3
-acc -99
-acc +1
-jmp -4
-acc +6`;
-
-const input = `jmp +583
+export const input = `jmp +583
 acc +9
 jmp +525
 jmp +302
@@ -638,56 +628,12 @@ jmp +1
 acc +28
 jmp +1`;
 
-const parseInputLines = (input) => {
-    return input.split(/\n/);
-};
-
-const followInstructions = (lines) => {
-    let accumulator = 0;
-    let currentLine = 0;
-    let visitedLines = [];
-    while (!visitedLines.includes(currentLine) && currentLine < lines.length) {
-        const [operation, argument] = lines[currentLine].split(' ');
-        let [, plusMinus, number] = argument.match(/^([+-])(\d*)$/);
-        number = parseInt(number, 10);
-        visitedLines.push(currentLine);
-        switch (operation) {
-            case 'acc':
-                accumulator =
-                    plusMinus === '+'
-                        ? accumulator + number
-                        : accumulator - number;
-                currentLine += 1;
-                break;
-            case 'jmp':
-                currentLine =
-                    plusMinus === '+'
-                        ? currentLine + number
-                        : currentLine - number;
-                break;
-            case 'nop':
-                currentLine += 1;
-                break;
-        }
-    }
-    return [accumulator, currentLine >= lines.length];
-};
-
-const lines = parseInputLines(input);
-
-console.log('Answer one:', followInstructions(lines)[0]);
-
-lines.some((line, index) => {
-    if (line.includes('acc')) {
-        return;
-    }
-    const modifiedLines = [...lines];
-    modifiedLines[index] = line.includes('jmp')
-        ? line.replace('jmp', 'nop')
-        : line.replace('nop', 'jmp');
-    const [answer, terminatedCorrectly] = followInstructions(modifiedLines);
-    if (terminatedCorrectly) {
-        console.log('Answer two:', answer);
-        return true;
-    }
-});
+export const testInput = `nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6`;

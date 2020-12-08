@@ -1,14 +1,4 @@
-const testData = `light red bags contain 1 bright white bag, 2 muted yellow bags.
-dark orange bags contain 3 bright white bags, 4 muted yellow bags.
-bright white bags contain 1 shiny gold bag.
-muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
-shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
-dark olive bags contain 3 faded blue bags, 4 dotted black bags.
-vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
-faded blue bags contain no other bags.
-dotted black bags contain no other bags.`;
-
-const data = `bright indigo bags contain 4 shiny turquoise bags, 3 wavy yellow bags.
+export const input = `bright indigo bags contain 4 shiny turquoise bags, 3 wavy yellow bags.
 dotted turquoise bags contain 3 vibrant salmon bags, 2 dotted maroon bags, 1 bright beige bag, 1 drab white bag.
 vibrant fuchsia bags contain 4 dark salmon bags.
 muted cyan bags contain 2 light gold bags, 5 mirrored salmon bags, 4 plaid blue bags.
@@ -603,81 +593,20 @@ shiny lime bags contain 4 striped olive bags, 3 dim coral bags.
 striped indigo bags contain 3 wavy red bags, 5 posh white bags, 5 light tan bags, 1 plaid bronze bag.
 wavy crimson bags contain 2 dull fuchsia bags, 5 striped tomato bags.`;
 
-const testData2 = `shiny gold bags contain 2 dark red bags.
+export const testInput = `light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags.`;
+
+export const testInput2 = `shiny gold bags contain 2 dark red bags.
 dark red bags contain 2 dark orange bags.
 dark orange bags contain 2 dark yellow bags.
 dark yellow bags contain 2 dark green bags.
 dark green bags contain 2 dark blue bags.
 dark blue bags contain 2 dark violet bags.
 dark violet bags contain no other bags.`;
-
-const parseRules = (data) => {
-    const lines = data.split(/\n/);
-    return lines.reduce((result, line) => {
-        const [outer, inner] = line
-            .replace(/\./, '')
-            .replace(/bags?/g, '')
-            .replace(/\s/g, '')
-            .split('contain');
-        result[outer] = {};
-        if (inner !== 'noother') {
-            inner.split(',').forEach((numItems) => {
-                const numItem = numItems.match(/^(\d+)(.*)/);
-                result[outer][numItem[2]] = numItem[1];
-            });
-        }
-        return result;
-    }, {});
-};
-
-const canBeContainedIn = (rules, color) => {
-    color = color.replace(/bags?/g, '').replace(/\s/g, '');
-    const containedIn = [];
-
-    const checkChildRecursive = (parent, child) => {
-        if (child in rules[parent]) {
-            return true;
-        } else if (Object.keys(rules[parent]).length !== 0) {
-            return Object.keys(rules[parent]).some((key) => {
-                return checkChildRecursive(key, child);
-            });
-        }
-        return false;
-    };
-
-    Object.keys(rules).forEach((key) => {
-        if (checkChildRecursive(key, color) && !containedIn.includes(key)) {
-            containedIn.push(key);
-        }
-    });
-
-    return containedIn;
-};
-
-const countChildren = (rules, color) => {
-    color = color.replace(/bags?/g, '').replace(/\s/g, '');
-
-    const countChildrenRecursive = (parent) => {
-        if (Object.keys(rules[parent]).length === 0) {
-            return 0;
-        } else {
-            return Object.entries(rules[parent]).reduce(
-                (result, [key, count]) => {
-                    return (
-                        result +
-                        parseInt(count, 10) +
-                        countChildrenRecursive(key) * parseInt(count, 10)
-                    );
-                },
-                0
-            );
-        }
-    };
-
-    return countChildrenRecursive(color);
-};
-
-const rules = parseRules(data);
-
-console.log('Answer one:', canBeContainedIn(rules, 'shiny gold bag').length);
-console.log('Answer two:', countChildren(rules, 'shiny gold'));

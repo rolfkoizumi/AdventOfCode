@@ -1,23 +1,4 @@
-const testData = `
-abc
-
-a
-b
-c
-
-ab
-ac
-
-a
-a
-a
-a
-
-b
-`;
-
-const data = `
-lfnghcsvpyrdjtxozimb
+export const input = `lfnghcsvpyrdjtxozimb
 mdtbnorpfalcijxvhsy
 elmwjkfbihydxcpqtovsrun
 tlhmsdjingyxcbfrvpo
@@ -2262,53 +2243,20 @@ wmoigknfuqlerxcpd
 xmcrguoeqfnpkwild
 egmlufncqdvxropiwk
 wagquoxrcfptekdinml
-lxgfmeirdquowkcpn
-`;
+lxgfmeirdquowkcpn`;
 
-const parseStringToGroups = (string) => {
-    const groupStrings = string.split(/\n\n/);
-    return groupStrings.map((groupString) => {
-        const answersPerPerson = groupString
-            .split(/\n/)
-            .filter((answer) => answer);
-        const uniqueAnswers = answersPerPerson.reduce((answers, person) => {
-            person.split('').forEach((letter) => {
-                if (!answers.includes(letter)) {
-                    answers.push(letter);
-                }
-            });
-            return answers;
-        }, []);
-        const sameAnswers = answersPerPerson.reduce((answers, person) => {
-            if (answers === null) {
-                return person.split('');
-            }
-            return answers.filter((answer) =>
-                person.split('').includes(answer)
-            );
-        }, null);
-        return {
-            answersPerPerson,
-            uniqueAnswers,
-            sameAnswers,
-        };
-    });
-};
+export const testInput = `abc
 
-console.log(
-    'Answer one:',
-    parseStringToGroups(data).reduce(
-        (uniqueAnswersCount, group) =>
-            uniqueAnswersCount + group.uniqueAnswers.length,
-        0
-    )
-);
+a
+b
+c
 
-console.log(
-    'Answer two:',
-    parseStringToGroups(data).reduce(
-        (sameAnswersCount, group) =>
-            sameAnswersCount + group.sameAnswers.length,
-        0
-    )
-);
+ab
+ac
+
+a
+a
+a
+a
+
+b`;
