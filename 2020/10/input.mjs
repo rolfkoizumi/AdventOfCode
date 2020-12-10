@@ -156,9 +156,3 @@ export const testInput2 = `28
 34
 10
 3`;
-
-export const testInput3 = `5
-1
-7
-6
-4`;

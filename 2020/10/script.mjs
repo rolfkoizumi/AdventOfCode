@@ -1,4 +1,4 @@
-import { input, testInput, testInput2, testInput3 } from './input.mjs';
+import { input, testInput, testInput2 } from './input.mjs';
 import { parseLinesToIntArray } from '../utils/parser.mjs';
 
 const data = [0, ...parseLinesToIntArray(input)];
@@ -27,16 +27,24 @@ const graph = data.reduce((graph, current, index) => {
     return graph;
 }, {});
 
-const depthFirstSearchPaths = (graph, path, paths = []) => {
-    const node = `${path[path.length - 1]}`;
-    if (node in graph && graph[node].length) {
-        graph[node].forEach((nextNode) => {
-            paths = depthFirstSearchPaths(graph, [...path, nextNode], paths);
-        });
-    } else {
-        paths.push(path);
+const product = [];
+let index = 0;
+const graphValues = Object.values(graph);
+while (index < graphValues.length && graphValues[index].length) {
+    if (graphValues[index].length === 2) {
+        product.push(
+            2 + (graphValues[index + 1] ? graphValues[index + 1].length - 1 : 0)
+        );
+    } else if (graphValues[index].length === 3) {
+        const branches =
+            (graphValues[index + 1] ? graphValues[index + 1].length - 1 : 0) +
+            (graphValues[index + 2] ? graphValues[index + 2].length - 1 : 0);
+        product.push(3 + (branches === 3 ? 4 : branches));
     }
-    return paths;
-};
+    index += graphValues[index].length;
+}
 
-console.log('answer two:', depthFirstSearchPaths(graph, [0]).length);
+console.log(
+    'answer two:',
+    product.reduce((product, current) => product * current)
+);
