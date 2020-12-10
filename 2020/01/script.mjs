@@ -11,19 +11,6 @@ for (let i = 0; i < data.length; i++) {
     }
 }
 
-// outerLoop: for (let i = 0; i < data.length; i++) {
-//     for (let j = i; j < data.length; j++) {
-//         if (data.includes(2020 - data[i] - data[j])) {
-//             console.log(
-//                 'Answer part two:',
-//                 data[i] * data[j] * (2020 - data[i] - data[j])
-//             );
-//             break outerLoop;
-//         }
-//     }
-// }
-
-// refactored with cartesian product. probably no performance gain in javascript but maybe nicer code?
 cartesian(data, data).some(([num1, num2]) => {
     if (data.includes(2020 - num1 - num2)) {
         console.log('Answer part two:', num1 * num2 * (2020 - num1 - num2));
