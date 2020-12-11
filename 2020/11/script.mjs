@@ -1,11 +1,7 @@
-import ndarrayPack from 'ndarray-pack';
-import ndarrayUnpack from 'ndarray-unpack';
-import ops from 'ndarray-ops';
-import zeros from 'zeros';
 import { input, testInput } from './input.mjs';
 
-const parse = (input) => {
-    return input
+const parse = (input) =>
+    input
         .split(/\n/)
         .map((line) =>
             line
@@ -17,73 +13,138 @@ const parse = (input) => {
                     )
                 )
         );
+
+const getAdjacent = (arr, x, y) => [
+    ...(x > 0 && y > 0 ? [arr[x - 1][y - 1]] : []),
+    ...(x > 0 ? [arr[x - 1][y]] : []),
+    ...(x > 0 && y + 1 < arr[x].length ? [arr[x - 1][y + 1]] : []),
+    ...(y > 0 ? [arr[x][y - 1]] : []),
+    ...(y + 1 < arr[x].length ? [arr[x][y + 1]] : []),
+    ...(x + 1 < arr.length && y > 0 ? [arr[x + 1][y - 1]] : []),
+    ...(x + 1 < arr.length ? [arr[x + 1][y]] : []),
+    ...(x + 1 < arr.length && y + 1 < arr[x].length ? [arr[x + 1][y + 1]] : []),
+];
+
+const getLineOfSight = (arr, x, y) => {
+    const cnt = {
+        up: x - 1,
+        right: y + 1,
+        down: x + 1,
+        left: y - 1,
+    };
+    const lines = {
+        upleft: [],
+        up: [],
+        upright: [],
+        left: [],
+        right: [],
+        downleft: [],
+        down: [],
+        downright: [],
+    };
+
+    while (
+        cnt.up > 0 ||
+        cnt.left > 0 ||
+        cnt.right < arr[0].length ||
+        cnt.down < arr.length
+    ) {
+        if (cnt.up >= 0 && cnt.left >= 0) {
+            lines.upleft.push(arr[cnt.up][cnt.left]);
+        }
+        if (cnt.up >= 0) {
+            lines.up.push(arr[cnt.up][y]);
+        }
+        if (cnt.up >= 0 && cnt.right < arr[0].length) {
+            lines.upright.push(arr[cnt.up][cnt.right]);
+        }
+        if (cnt.left >= 0) {
+            lines.left.push(arr[x][cnt.left]);
+        }
+        if (cnt.right < arr[0].length) {
+            lines.right.push(arr[x][cnt.right]);
+        }
+        if (cnt.down < arr.length && cnt.left >= 0) {
+            lines.downleft.push(arr[cnt.down][cnt.left]);
+        }
+        if (cnt.down < arr.length) {
+            lines.down.push(arr[cnt.down][y]);
+        }
+        if (cnt.down < arr.length && cnt.right < arr[0].length) {
+            lines.downright.push(arr[cnt.down][cnt.right]);
+        }
+        cnt.up -= 1;
+        cnt.left -= 1;
+        cnt.right += 1;
+        cnt.down += 1;
+    }
+
+    return Object.keys(lines).reduce(
+        (arr, key) => [
+            ...arr,
+            ...(lines[key].length && lines[key].find((n) => n > -1) > -1
+                ? [lines[key].find((n) => n > -1)]
+                : []),
+        ],
+        []
+    );
 };
 
-const getAdjacent = (nd, x, y) => {
-    const res = [];
-    if (x > 0 && y > 0) {
-        res.push(nd.get(x - 1, y - 1));
-    }
-    if (x > 0) {
-        res.push(nd.get(x - 1, y));
-    }
-    if (x > 0 && y + 1 < nd.shape[1]) {
-        res.push(nd.get(x - 1, y + 1));
-    }
-    if (y > 0) {
-        res.push(nd.get(x, y - 1));
-    }
-    if (y + 1 < nd.shape[1]) {
-        res.push(nd.get(x, y + 1));
-    }
-    if (x + 1 < nd.shape[0] && y > 0) {
-        res.push(nd.get(x + 1, y - 1));
-    }
-    if (x + 1 < nd.shape[0]) {
-        res.push(nd.get(x + 1, y));
-    }
-    if (x + 1 < nd.shape[0] && y + 1 < nd.shape[1]) {
-        res.push(nd.get(x + 1, y + 1));
-    }
-    return res;
-};
-
-const filter = (oldArr) => {
-    const newArr = zeros(oldArr.shape);
-    for (let x = 0; x < oldArr.shape[0]; x++) {
-        for (let y = 0; y < oldArr.shape[1]; y++) {
-            const current = oldArr.get(x, y);
-            const adjacent = getAdjacent(oldArr, x, y);
+const filter = (arr, maxOccupied = 4, adjacency = 'direct') => {
+    const newArr = [...Array(arr.length)].map((e) => Array(arr[0].length));
+    for (let x = 0; x < arr.length; x++) {
+        for (let y = 0; y < arr[x].length; y++) {
+            const current = arr[x][y];
+            const adjacent =
+                adjacency === 'direct'
+                    ? getAdjacent(arr, x, y)
+                    : getLineOfSight(arr, x, y);
             if (current === 0 && adjacent.every((seat) => seat <= 0)) {
-                newArr.set(x, y, 1);
+                newArr[x][y] = 1;
             } else if (
                 current === 1 &&
-                adjacent.reduce(
-                    (count, seat) => count + (seat === 1 ? 1 : 0),
-                    0
-                ) >= 4
+                adjacent.reduce((count, seat) => count + (seat === 1), 0) >=
+                    maxOccupied
             ) {
-                newArr.set(x, y, 0);
+                newArr[x][y] = 0;
             } else {
-                newArr.set(x, y, current);
+                newArr[x][y] = current;
             }
         }
     }
     return newArr;
 };
 
+const part1 = (arr) => {
+    let oldArr = arr;
+    let newArr = filter(arr);
+
+    while (oldArr.flat().join('') !== newArr.flat().join('')) {
+        oldArr = newArr;
+        newArr = filter(oldArr);
+    }
+
+    console.log(
+        'answer one:',
+        newArr.flat().reduce((count, num) => count + (num === 1 ? 1 : 0), 0)
+    );
+};
+
+const part2 = (arr) => {
+    let oldArr = [...arr];
+    let newArr = filter(arr, 5, 'lineofsight');
+
+    while (oldArr.flat().join('') !== newArr.flat().join('')) {
+        oldArr = [...newArr];
+        newArr = filter(oldArr, 5, 'lineofsight');
+    }
+
+    console.log(
+        'answer two:',
+        newArr.flat().reduce((count, num) => count + (num === 1 ? 1 : 0), 0)
+    );
+};
+
 const input2d = parse(input);
-const inputNd = ndarrayPack(input2d);
-
-let oldArr = inputNd;
-let newArr = filter(inputNd);
-while (!ops.equals(oldArr, newArr)) {
-    oldArr = newArr;
-    newArr = filter(oldArr);
-}
-
-console.log(
-    ndarrayUnpack(newArr)
-        .flat()
-        .reduce((count, num) => count + (num === 1 ? 1 : 0), 0)
-);
+part1(input2d);
+part2(input2d);
