@@ -1,6 +1,6 @@
 import { input } from './input.mjs';
 import { parseLinesToIntArray } from '../utils/parser.mjs';
-import { cartesian } from '../utils/sci.mjs';
+import { cartesian } from '../utils/tools.mjs';
 
 const data = parseLinesToIntArray(input);
 
