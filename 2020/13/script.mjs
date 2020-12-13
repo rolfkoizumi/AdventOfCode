@@ -20,7 +20,7 @@ const part1 = (data) => {
     }
 };
 
-const part2 = (data, startingAbove = 0) => {
+const part2inefficient = (data, startingAbove = 0) => {
     const maxIndex = data.indexOf(
         `${Math.max(
             ...data.filter((a) => a !== 'x').map((a) => parseInt(a, 10))
@@ -65,6 +65,41 @@ const part2 = (data, startingAbove = 0) => {
     }
 };
 
+const part2 = (data) => {
+    const busIdsIndices = data
+        .map((a, i) => [parseInt(a, 10), i])
+        .filter((a) => !isNaN(a[0]));
+    let step = busIdsIndices[0][0];
+    let product = busIdsIndices.reduce((a, b) => a * b[0], 1);
+    let start = 0;
+    let run = true;
+    let result = null;
+
+    while (run) {
+        for (let time = start; time < product; time += step) {
+            const validIds = busIdsIndices
+                .filter((a) => (time + a[1]) % a[0] === 0)
+                .map((a) => a[0]);
+
+            if (validIds.length === busIdsIndices.length) {
+                run = false;
+                result = time;
+                break;
+            }
+
+            if (validIds.length > 1) {
+                const gcd = (a, b) => (a ? gcd(b % a, a) : b);
+                let lcm = validIds.reduce((a, b) => (a * b) / gcd(a, b));
+                start = time + lcm;
+                step = lcm;
+                break;
+            }
+        }
+    }
+
+    return result;
+};
+
 const testData = parse(testInput);
 const part1test = part1(testData);
 assert((part1test[1] - testData[0]) * part1test[0] === 295);
@@ -73,11 +108,11 @@ const data = parse(input);
 const part1res = part1(data);
 console.log('answer 1:', (part1res[1] - data[0]) * part1res[0]);
 
-assert(part2(testData[1], 1000) === 1068781);
-assert(part2(`17,x,13,19`.split(','), 1000) === 3417);
+assert(part2(testData[1]) === 1068781);
+assert(part2(`17,x,13,19`.split(',')) === 3417);
 assert(part2(`67,7,59,61`.split(',')) === 754018);
 assert(part2(`67,x,7,59,61`.split(',')) === 779210);
 assert(part2(`67,7,x,59,61`.split(',')) === 1261476);
 assert(part2(`1789,37,47,1889`.split(',')) === 1202161486);
 
-console.log('answer 2:', part2(data[1], 1000000000000000));
+console.log('answer 2:', part2(data[1]));
