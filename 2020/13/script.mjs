@@ -1,16 +1,16 @@
 import { input, testInput } from './input.mjs';
+import { assert } from '../utils/tools.mjs';
 
-export const parse = (input) => {
+const parse = (input) => {
     const parsed = input.split(/\n/);
     return [parsed[0], parsed[1].split(',')];
 };
 
 const part1 = (data) => {
-    const busIds = data[1].filter((num) => num !== 'x');
-    for (let time = parseInt(data[0], 10); true; time++) {
+    const busIds = data[1].filter((num) => num !== 'x').map(Number);
+    for (let time = parseInt(data[0], 10); Number.MAX_SAFE_INTEGER; time++) {
         const busId = busIds.find((busId) => {
-            const frac = time / busId;
-            if (frac - Math.floor(frac) === 0) {
+            if (time % busId === 0) {
                 return true;
             }
         });
@@ -20,47 +20,64 @@ const part1 = (data) => {
     }
 };
 
-const part2 = (data) => {
+const part2 = (data, startingAbove = 0) => {
     const maxIndex = data.indexOf(
         `${Math.max(
             ...data.filter((a) => a !== 'x').map((a) => parseInt(a, 10))
         )}`
     );
 
-    for (let i = 0; i < 10000000000; i += 1) {
-        const prod = data[maxIndex] * i;
+    const gcd = data.reduce(
+        (gcd, item, index) => {
+            if (
+                data.length > parseInt(item, 10) + index &&
+                data[parseInt(item, 10) + index] !== 'x' &&
+                parseInt(item, 10) *
+                    parseInt(data[parseInt(item, 10) + index], 10) >
+                    gcd.gcd
+            ) {
+                gcd.index = parseInt(item, 10) + index;
+                gcd.gcd =
+                    parseInt(item, 10) *
+                    parseInt(data[parseInt(item, 10) + index], 10);
+            }
+            return gcd;
+        },
+        { index: 0, gcd: 0 }
+    );
+
+    const step = Math.max(parseInt(data[maxIndex], 10), gcd.gcd);
+    const stepIndex = step === gcd.gcd ? gcd.index : maxIndex;
+
+    const start = Math.floor(startingAbove / step) * step + step;
+
+    for (let i = start; i < start + 100000000000000; i += step) {
         const found = data.every((busId, index) => {
             if (busId === 'x') {
                 return true;
             }
-            const frac = (prod - maxIndex + index) / busId;
+            const frac = (i - stepIndex + index) / busId;
             return frac - Math.floor(frac) === 0;
         });
         if (found) {
-            return prod - maxIndex;
+            return i - stepIndex;
         }
     }
 };
 
 const testData = parse(testInput);
 const part1test = part1(testData);
-console.log(
-    'test 1 cleared:',
-    (part1test[1] - testData[0]) * part1test[0] === 295
-);
+assert((part1test[1] - testData[0]) * part1test[0] === 295);
 
 const data = parse(input);
 const part1res = part1(data);
 console.log('answer 1:', (part1res[1] - data[0]) * part1res[0]);
 
-console.log('test 2 cleared:', part2(testData[1]) === 1068781);
-console.log('test 2 cleared:', part2(`17,x,13,19`.split(',')) === 3417);
-console.log('test 2 cleared:', part2(`67,7,59,61`.split(',')) === 754018);
-console.log('test 2 cleared:', part2(`67,x,7,59,61`.split(',')) === 779210);
-console.log('test 2 cleared:', part2(`67,7,x,59,61`.split(',')) === 1261476);
-console.log(
-    'test 2 cleared:',
-    part2(`1789,37,47,1889`.split(',')) === 1202161486
-);
+assert(part2(testData[1], 1000) === 1068781);
+assert(part2(`17,x,13,19`.split(','), 1000) === 3417);
+assert(part2(`67,7,59,61`.split(',')) === 754018);
+assert(part2(`67,x,7,59,61`.split(',')) === 779210);
+assert(part2(`67,7,x,59,61`.split(',')) === 1261476);
+assert(part2(`1789,37,47,1889`.split(',')) === 1202161486);
 
-console.log('answer 2:', part2(data[1]));
+console.log('answer 2:', part2(data[1], 1000000000000000));
