@@ -20,11 +20,14 @@ const part1 = (data) => {
     }
 };
 
-const part2inefficient = (data, startingAbove = 0) => {
-    const maxIndex = data.indexOf(
-        `${Math.max(
-            ...data.filter((a) => a !== 'x').map((a) => parseInt(a, 10))
-        )}`
+const part2inefficient = (data) => {
+    const busIdsIndices = data
+        .map((a, i) => [parseInt(a, 10), i])
+        .filter((a) => !isNaN(a[0]));
+    const product = busIdsIndices.reduce((a, b) => a * b[0], 1);
+
+    const max = busIdsIndices.reduce((max, item) =>
+        max[0] >= item[0] ? max : item
     );
 
     const gcd = data.reduce(
@@ -46,21 +49,22 @@ const part2inefficient = (data, startingAbove = 0) => {
         { index: 0, gcd: 0 }
     );
 
-    const step = Math.max(parseInt(data[maxIndex], 10), gcd.gcd);
-    const stepIndex = step === gcd.gcd ? gcd.index : maxIndex;
+    const step = Math.max(max[0], gcd.gcd);
+    const stepIndex = step === gcd.gcd ? gcd.index : max[1];
 
-    const start = Math.floor(startingAbove / step) * step + step;
-
-    for (let i = start; i < start + 100000000000000; i += step) {
+    for (let time = 0; time < product; time += step) {
+        const validIds = busIdsIndices
+            .filter((a) => (time + a[1]) % a[0] === 0)
+            .map((a) => a[0]);
         const found = data.every((busId, index) => {
             if (busId === 'x') {
                 return true;
             }
-            const frac = (i - stepIndex + index) / busId;
+            const frac = (time - stepIndex + index) / busId;
             return frac - Math.floor(frac) === 0;
         });
         if (found) {
-            return i - stepIndex;
+            return time - stepIndex;
         }
     }
 };
@@ -69,8 +73,8 @@ const part2 = (data) => {
     const busIdsIndices = data
         .map((a, i) => [parseInt(a, 10), i])
         .filter((a) => !isNaN(a[0]));
+    const product = busIdsIndices.reduce((a, b) => a * b[0], 1);
     let step = busIdsIndices[0][0];
-    let product = busIdsIndices.reduce((a, b) => a * b[0], 1);
     let start = 0;
     let run = true;
     let result = null;
