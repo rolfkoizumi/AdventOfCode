@@ -3,20 +3,7 @@ import { input, testInput } from './input.mjs';
 
 const parse = (input) => input.split(',').map(Number);
 
-const part1 = (data, rounds = 2020) => {
-    const numbers = data.reverse();
-    while (numbers.length < rounds) {
-        const lastSpoken = numbers.indexOf(numbers[0], 1);
-        if (lastSpoken > 0) {
-            numbers.unshift(numbers.length - (numbers.length - lastSpoken));
-        } else {
-            numbers.unshift(0);
-        }
-    }
-    return numbers[0];
-};
-
-const part2 = (data, rounds = 2020) => {
+const memoryGame = (data, rounds = 2020) => {
     const numbers = data.reduce((numbers, num, index) => {
         numbers.set(num, [index + 1]);
         return numbers;
@@ -32,15 +19,15 @@ const part2 = (data, rounds = 2020) => {
     return number;
 };
 
-assert(part1(parse(testInput)) === 436);
-console.log('answer one:', part1(parse(input)));
+assert(memoryGame(parse(testInput)) === 436);
+console.log('answer one:', memoryGame(parse(input)));
 
-assert(part2(parse(testInput)) === 436);
-assert(part2([0, 3, 6], 30000000) === 175594);
-assert(part2([1, 3, 2], 30000000) === 2578);
-assert(part2([2, 1, 3], 30000000) === 3544142);
-assert(part2([1, 2, 3], 30000000) === 261214);
-assert(part2([2, 3, 1], 30000000) === 6895259);
-assert(part2([3, 2, 1], 30000000) === 18);
-assert(part2([3, 1, 2], 30000000) === 362);
-console.log('answer two:', part2(parse(input), 30000000));
+assert(memoryGame(parse(testInput)) === 436);
+assert(memoryGame([0, 3, 6], 30000000) === 175594);
+assert(memoryGame([1, 3, 2], 30000000) === 2578);
+assert(memoryGame([2, 1, 3], 30000000) === 3544142);
+assert(memoryGame([1, 2, 3], 30000000) === 261214);
+assert(memoryGame([2, 3, 1], 30000000) === 6895259);
+assert(memoryGame([3, 2, 1], 30000000) === 18);
+assert(memoryGame([3, 1, 2], 30000000) === 362);
+console.log('answer two:', memoryGame(parse(input), 30000000));
