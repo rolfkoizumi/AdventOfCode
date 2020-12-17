@@ -4,3 +4,9 @@ export const cartesian = (...a) =>
 export const assert = (assertion) => {
     console.log(assertion ? '✓' : '✗');
 };
+
+export const assertEqual = (actual, expected) => {
+    console.log(
+        actual === expected ? '✓' : `✗ (expected ${expected}, got ${actual})`
+    );
+};

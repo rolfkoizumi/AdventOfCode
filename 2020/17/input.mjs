@@ -1,3 +1,12 @@
-export const input = ``;
+export const input = `#......#
+##.#..#.
+#.#.###.
+.##.....
+.##.#...
+##.#....
+#####.#.
+##.#.###`;
 
-export const testInput = ``;
+export const testInput = `.#.
+..#
+###`;
