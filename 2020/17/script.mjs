@@ -1,24 +1,37 @@
+import tf from '@tensorflow/tfjs';
+import ndarray from 'ndarray';
+import zeros from 'zeros';
+import show from 'ndarray-show';
 import { assertEqual } from '../utils/tools.mjs';
 import { input, testInput } from './input.mjs';
-import { parseLinesToArray } from '../utils/parser.mjs';
 
 const parse = (input) => {
-    return [
-        input
-            .replace(/#/g, 1)
-            .replace(/\./g, 0)
-            .split('\n')
-            .map((line) => line.split('').map(Number)),
-    ];
+    return input
+        .replace(/#/g, 1)
+        .replace(/\./g, 0)
+        .split('\n')
+        .join('')
+        .split('')
+        .map(Number);
 };
 
 const parse4d = (input) => {
+    const values = input
+        .replace(/#/g, 1)
+        .replace(/\./g, 0)
+        .split('\n')
+        .map((line) => line.split('').map(Number))
+        .flat(3);
+    return ndarray(new Int8Array(values), [3, 3, 1, 1]);
     return [
         input
             .replace(/#/g, 1)
             .replace(/\./g, 0)
             .split('\n')
-            .map((line) => [line.split('').map(Number)]),
+            .map((line) => [
+                line.split('').map(Number),
+                line.split('').map(Number),
+            ]),
     ];
 };
 
@@ -139,37 +152,111 @@ const getAllNeighbors4d = (array, x, y, z, w) => {
     return neighbors;
 };
 
-const executeCycle = (array3d) => {
-    const expanded = expand3dArray(array3d);
-    const result = create3dZeroArray(
-        expanded.length,
-        expanded[0].length,
-        expanded[0][0].length
-    );
+const executeCycle = (tfarray) => {
+    const result = tf.zeros(tfarray.shape.map((l) => l + 2));
+    // return;
+    // const expanded = expand3dArray(array3d);
+    // const result = zeros([
+    //     expanded.length,
+    //     expanded[0].length,
+    //     expanded[0][0].length,
+    // ]);
 
-    for (let x = 0; x < expanded.length; x += 1) {
-        for (let y = 0; y < expanded[x].length; y += 1) {
-            for (let z = 0; z < expanded[x][y].length; z += 1) {
-                const activeNeighbors = getAllNeighbors(
-                    expanded,
-                    x,
-                    y,
-                    z
-                ).reduce((sum, cur) => sum + cur);
-                if (
-                    expanded[x][y][z] &&
-                    !(activeNeighbors === 2 || activeNeighbors === 3)
-                ) {
-                    result[x][y][z] = 0;
-                } else if (!expanded[x][y][z] && activeNeighbors === 3) {
-                    result[x][y][z] = 1;
-                } else {
-                    result[x][y][z] = expanded[x][y][z];
-                }
+    for (let x = 1; x < result.shape[0] - 1; x += 1) {
+        for (let y = 1; y < result.shape[1] - 1; y += 1) {
+            for (let z = 1; z < result.shape[2] - 1; z += 1) {
+                let val = 0;
+                try {
+                    val = tfarray.arraySync()[x - 1][y - 1][z - 1] || 0;
+                } catch (error) {}
+                result.bufferSync().set(val, x, y, z);
             }
         }
     }
 
+    const convLayer = tf.layers.conv1d({
+        filters: 1,
+        kernelSize: 3,
+        weights: [
+            [
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+            [
+                [1, 1, 1],
+                [1, 0, 1],
+                [1, 1, 1],
+            ],
+            [
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+        ],
+    });
+    convLayer.apply(result);
+
+    const filter = [
+        [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 0, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+        ],
+    ];
+    tf.conv1d(result, filter, 1, 'same').print();
+    console.log(result);
+    result.print();
+
+    for (let x = 0; x < result.shape[0]; x += 1) {
+        for (let y = 0; y < result.shape[1]; y += 1) {
+            for (let z = 0; z < result.shape[2]; z += 1) {
+                let current = 0;
+                try {
+                    current = tfarray.arraySync()[x - 1][y - 1][z - 1] || 0;
+                } catch (error) {}
+                // console.log(current, result.arraySync()[x][y][z]);
+                try {
+                    // tf.slice3d(tfarray, [x, y, z], [1, 1, 3]).print();
+                } catch (error) {}
+                // const activeNeighbors = getAllNeighbors(
+                //     expanded,
+                //     x,
+                //     y,
+                //     z
+                // ).reduce((sum, cur) => sum + cur);
+                // if (
+                //     expanded[x][y][z] &&
+                //     !(activeNeighbors === 2 || activeNeighbors === 3)
+                // ) {
+                //     result[x][y][z] = 0;
+                // } else if (!expanded[x][y][z] && activeNeighbors === 3) {
+                //     result[x][y][z] = 1;
+                // } else {
+                //     result[x][y][z] = expanded[x][y][z];
+                // }
+            }
+        }
+    }
+
+    // result.print();
+    return '';
     return result;
 };
 
@@ -230,17 +317,22 @@ const part2 = (data) => {
 };
 
 const testData = parse(testInput);
-assertEqual(part1(testData), 112);
+// console.log(executeCycle(tf.tensor3d(testData, [1, 3, 3])));
+// assertEqual(part1(testData), 112);
 
 // const data = parse(input);
 // console.log('answer one:', part1(data));
 
-const testData4d = parse4d(testInput);
-assertEqual(
-    executeCycle4d(testData4d)
-        .flat(4)
-        .reduce((sum, cur) => sum + cur),
-    29
-);
+// const testData4d = parse4d(testInput);
+// assertEqual(
+//     executeCycle4d(testData4d)
+//         .flat(4)
+//         .reduce((sum, cur) => sum + cur),
+//     29
+// );
 // assertEqual(part2(testData4d), 848);
 // console.log('answer two:', part2(data));
+
+// console.log(parse4d(testInput));
+
+console.log(zeros([3, 3, 3]));

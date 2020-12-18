@@ -1,0 +1,17 @@
+{
+  "name": "2020",
+  "version": "1.0.0",
+  "description": "-   `npm install`\r -   scripts can be executed with node: `node .\\01\\script.mjs`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs": "^2.8.0",
+    "ndarray": "^1.0.19",
+    "ndarray-show": "^2.0.0",
+    "zeros": "^1.0.0"
+  }
+}
