@@ -2,8 +2,6 @@ import { input, testInput } from './04_input.mjs';
 import { parseLinesToArray } from './utils/parser.mjs';
 import { transpose2d } from './utils/tools.mjs';
 
-console.log(null ?? 'foo')
-
 const parseInput = (input) => {
     const data = parseLinesToArray(input);
 
