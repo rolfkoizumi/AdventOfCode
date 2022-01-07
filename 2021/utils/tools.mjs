@@ -12,5 +12,5 @@ export const assertEqual = (actual, expected) => {
 };
 
 export const transpose2d = (array2d) => {
-    return array2d[0].map((_, c) => array2d.map(r => r[c]));
+    return array2d[0]?.map((_, c) => array2d.map(r => r[c])) ?? array2d;
 }
