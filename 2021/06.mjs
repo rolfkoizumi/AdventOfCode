@@ -8,8 +8,8 @@ const parseInput = input => {
     }, new Map());
 };
 
-const data = parseInput(input);
 // const data = parseInput(testInput);
+const data = parseInput(input);
 
 const simulateDays = (data, days) =>  {
     for (let i = 0; i < days; i += 1) {
