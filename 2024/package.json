@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "start": "npx tsx"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.1",
+        "tsx": "^4.19.2"
+    }
+}

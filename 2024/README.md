@@ -1,0 +1,3 @@
+- install bun (`volta install bun`)
+- `bun install`
+- With VSCode: Run -> Start Debugging
