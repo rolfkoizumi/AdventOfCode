@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 
+
 export function readData<T>(filename: string, parser: undefined): string
 export function readData<T>(filename: string, parser: (data: string) => T): T
 export function readData<T>(filename: string, parser?: (data: string) => T) {

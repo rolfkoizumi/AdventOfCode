@@ -1,6 +1,13 @@
+// https://adventofcode.com/2024/day/1
+
 import { readData, splitLines } from './utils';
 
-// https://adventofcode.com/2024/day/1
+const example = `3   4
+4   3
+2   5
+1   3
+3   9
+3   3`;
 
 function parser(data: string) {
     const [leftList, rightList]: [number[], number[]] = [[], []];
@@ -26,14 +33,7 @@ function getSimilarityScore(lists: { leftList: number[], rightList: number[] }) 
     }, 0);
 }
 
-const exampleData = `3   4
-4   3
-2   5
-1   3
-3   9
-3   3`;
-
-const exampleLists = parser(exampleData);
+const exampleLists = parser(example);
 console.log('Example:', getTotalDistance(exampleLists), getSimilarityScore(exampleLists));
 
 const lists = readData('01.txt', parser);
