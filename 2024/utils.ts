@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 
-
 export function readData<T>(filename: string, parser: undefined): string
 export function readData<T>(filename: string, parser: (data: string) => T): T
 export function readData<T>(filename: string, parser?: (data: string) => T) {
@@ -15,4 +14,12 @@ export function readData<T>(filename: string, parser?: (data: string) => T) {
 
 export function splitLines(data: string) {
     return data.split(/\r?\n|\r|\n/g);
+}
+
+export function assert<T extends string | number | boolean>(assertion: T, expected?: T) {
+    if (expected === undefined) {
+        console.log(assertion === true ? '✓' : `✗ (${assertion})`);
+    } else {
+        console.log(assertion === expected ? '✓' : `✗ (expected ${expected}, got ${assertion})`);
+    }
 }
