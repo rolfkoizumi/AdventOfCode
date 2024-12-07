@@ -11,7 +11,7 @@
             "cwd": "${fileDirname}",
             "runtimeExecutable": "bun",
             "runtimeArgs": ["run", "start", "${file}"],
-            // "console": "integratedTerminal"
+            "console": "integratedTerminal"
         }
     ]
 }

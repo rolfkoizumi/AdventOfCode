@@ -5,5 +5,11 @@
     "devDependencies": {
         "@types/node": "^22.10.1",
         "tsx": "^4.19.2"
+    },
+    "dependencies": {
+        "@types/ndarray": "^1.0.14",
+        "ndarray": "^1.0.19",
+        "ndarray-show": "^2.0.0",
+        "zeros": "^1.0.0"
     }
 }
